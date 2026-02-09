@@ -22,12 +22,30 @@ if(USE_DCMTK)
     endif()
 endif()
 
+find_package(GTest REQUIRED)
+
 add_executable(dicompractice
     src/main.cpp
 )
 
+add_executable(dicompractice_test
+    src/tests/dicom_test.cpp
+)
 
+if (DCMTK_FOUND)
+    target_include_directories(dicompractice PRIVATE ${DCMTK_INCLUDE_DIRS})
+    target_link_libraries(dicompractice PRIVATE ${DCMTK_LIBRARIES})
 
+    target_include_directories(dicompractice_test PRIVATE ${DCMTK_INCLUDE_DIRS})
+    target_link_libraries(dicompractice_test PRIVATE ${DCMTK_LIBRARIES})
+endif()
+
+if (GTest_FOUND)
+    target_link_libraries(dicompractice_test PRIVATE GTest::gtest GTest::gtest_main pthread)
+endif()
+
+enable_testing()
+add_test(NAME DICOMTest COMMAND dicompractice_test)
 
 message(STATUS "")
 message(STATUS "=== DICOMPractice Configuration Summary ===")
