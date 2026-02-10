@@ -32,12 +32,19 @@ add_executable(dicompractice_test
     src/tests/dicom_test.cpp
 )
 
+add_executable(create_test_dicom
+    src/tools/create_test_dicom.cpp
+)
+
 if (DCMTK_FOUND)
     target_include_directories(dicompractice PRIVATE ${DCMTK_INCLUDE_DIRS})
     target_link_libraries(dicompractice PRIVATE ${DCMTK_LIBRARIES})
 
     target_include_directories(dicompractice_test PRIVATE ${DCMTK_INCLUDE_DIRS})
     target_link_libraries(dicompractice_test PRIVATE ${DCMTK_LIBRARIES})
+
+    target_include_directories(create_test_dicom PRIVATE ${DCMTK_INCLUDE_DIRS})
+    target_link_libraries(create_test_dicom PRIVATE ${DCMTK_LIBRARIES})
 endif()
 
 if (GTest_FOUND)

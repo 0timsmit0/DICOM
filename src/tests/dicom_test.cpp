@@ -64,14 +64,14 @@ class DICOMImageTest : public ::testing::Test {
             // 4. Return RGB values from the array
 
             RGBPixel pixel = {0, 0, 0};
-            Uint16 rows, cols = 0;
+            Uint16 cols = 0;
             unsigned long count = 0;
             
-            dataset->findAndGetUint16    (DCM_Columns, cols);
+            dataset->findAndGetUint16(DCM_Columns, cols);
             
             const Uint8 *pixelData = nullptr;
             dataset->findAndGetUint8Array(DCM_PixelData, pixelData, &count);
-            if (count < row*cols+col) {
+            if (count < (row*cols+col)*3 + 2) {
                 throw std::runtime_error("Pixel index out of bounds");
             }
             int index = (row * cols + col) * 3;
@@ -92,7 +92,6 @@ class DICOMImageTest : public ::testing::Test {
 
 // Test 1: Verify that the DICOM file can be loaded without errors
 TEST_F(DICOMImageTest, CanReadDicomFile) {
-    // TODO: Implement this test
     DcmFileFormat fileformat;
     OFCondition status = fileformat.loadFile(testImagePath.c_str());
     ASSERT_TRUE(status.good()) << "Failed to load DICOM file: " << status.text();
@@ -103,6 +102,7 @@ TEST_F(DICOMImageTest, MetadataIsCorrect) {
     
     DcmFileFormat fileformat;
     OFCondition status = fileformat.loadFile(testImagePath.c_str());
+    ASSERT_TRUE(status.good()) << "Failed to load DICOM file: " << status.text();
     DcmDataset* dataset = fileformat.getDataset();
     ASSERT_EQ(getMetadataString(dataset,DCM_PatientName), "Test^Patient");
     ASSERT_EQ(getMetadataString(dataset,DCM_PatientID), "123456");
@@ -122,6 +122,7 @@ TEST_F(DICOMImageTest, FirstPixelIsGreen) {
 
     DcmFileFormat fileformat;
     OFCondition status = fileformat.loadFile(testImagePath.c_str());
+    ASSERT_TRUE(status.good());
     DcmDataset* dataset = fileformat.getDataset();
     
     DICOMImageTest::RGBPixel pixel = getPixelAt(dataset, 0, 0);
@@ -135,6 +136,7 @@ TEST_F(DICOMImageTest, LastPixelIsGreen) {
 
     DcmFileFormat fileformat;
     OFCondition status = fileformat.loadFile(testImagePath.c_str());
+    ASSERT_TRUE(status.good());
     DcmDataset* dataset = fileformat.getDataset();
     
     DICOMImageTest::RGBPixel pixel = getPixelAt(dataset, 99, 99);
